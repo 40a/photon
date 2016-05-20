@@ -29,6 +29,8 @@ def get_photon_config():
 playbook: playbooks/openstack/metapod.yml
 inventory: inventory/{az}
 user: user
+deployment_repo: git@github.com:metacloud/ansible-systems.git
+inventory_repo: git@github.com:metacloud/ansible-inventory.git
 flags:
   connection: ssh
   become: True

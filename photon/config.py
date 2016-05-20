@@ -61,6 +61,14 @@ class Config(object):
         return self._az_dict.get('user', u)
 
     @property
+    def deployment_repo(self):
+        return self._config_dict.get('deployment_repo')
+
+    @property
+    def inventory_repo(self):
+        return self._config_dict.get('inventory_repo')
+
+    @property
     def env(self):
         d = self._config_dict.get('env')
         d['ANSIBLE_INVENTORY'] = self.inventory

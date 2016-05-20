@@ -63,6 +63,14 @@ class TestConfig(testtools.TestCase):
 
         self.assertEquals('az_user', self._config.user)
 
+    def test_deployment_repo(self):
+        self.assertEquals('git@github.com:metacloud/ansible-systems.git',
+                          self._config.deployment_repo)
+
+    def test_inventory_repo(self):
+        self.assertEquals('git@github.com:metacloud/ansible-inventory.git',
+                          self._config.inventory_repo)
+
     def test_flags(self):
         expected = {
             'inventory': 'inventory/az',
