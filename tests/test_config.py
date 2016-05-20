@@ -20,45 +20,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import tempfile
-import textwrap
-
 import testtools
 
 from photon import config
+from tests import helper
 
 
 class TestConfig(testtools.TestCase):
-    def _get_photon_config(self):
-        config = textwrap.dedent("""
-                                 ---
-                                 playbook: playbooks/openstack/metapod.yml
-                                 flags:
-                                   inventory: inventory/{az}
-                                   user: todo
-                                   connection: ssh
-                                   become: True
-                                 env:
-                                   ANSIBLE_FORCE_COLOR: True
-                                   ANSIBLE_HOST_KEY_CHECKING: False
-                                   ANSIBLE_SSH_ARGS: >-
-                                     -o UserKnownHostsFile=/dev/null
-                                     -o IdentitiesOnly=yes
-                                     -o ControlMaster=auto
-                                     -o ControlPersist=60s
-                                 az:
-                                   ansible_deployment_version: master
-                                   ansible_inventory_version: master
-                                """)
-        f = tempfile.NamedTemporaryFile()
-        f.write(config)
-        f.flush()
-
-        return f
-
     def setUp(self):
         super(TestConfig, self).setUp()
-        self._photon_config = self._get_photon_config()
+        self._photon_config = helper.get_photon_config()
         self._config = config.Config('az', self._photon_config.name)
 
     def tearDown(self):
