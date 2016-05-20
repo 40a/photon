@@ -58,6 +58,10 @@ class Config(object):
     def inventory(self):
         return self._config_dict.get('inventory').format(az=self._az)
 
+    @property
+    def env(self):
+        return self._config_dict.get('env')
+
     def _get_az_config(self):
         return self._config_dict.get(self._az)
 

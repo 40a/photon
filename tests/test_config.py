@@ -34,7 +34,14 @@ class TestConfig(testtools.TestCase):
                                  ---
                                  playbook: playbooks/openstack/metapod.yml
                                  inventory: inventory/{az}
-
+                                 env:
+                                   ANSIBLE_FORCE_COLOR: True
+                                   ANSIBLE_HOST_KEY_CHECKING: False
+                                   ANSIBLE_SSH_ARGS: >-
+                                     -o UserKnownHostsFile=/dev/null
+                                     -o IdentitiesOnly=yes
+                                     -o ControlMaster=auto
+                                     -o ControlPersist=60s
                                  az:
                                    ansible_deployment_version: master
                                    ansible_inventory_version: master
@@ -66,3 +73,15 @@ class TestConfig(testtools.TestCase):
 
     def test_inventory(self):
         self.assertEquals('inventory/az', self._config.inventory)
+
+    def test_env(self):
+        expected = {
+          'ANSIBLE_FORCE_COLOR': True,
+          'ANSIBLE_HOST_KEY_CHECKING': False,
+          'ANSIBLE_SSH_ARGS': ('-o UserKnownHostsFile=/dev/null '
+                               '-o IdentitiesOnly=yes '
+                               '-o ControlMaster=auto '
+                               '-o ControlPersist=60s'),
+        }
+
+        self.assertDictEqual(expected, self._config.env)
