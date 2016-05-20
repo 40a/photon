@@ -40,11 +40,11 @@ class Config(object):
 
     @property
     def deployment_version(self):
-        return self._az_dict.get('ansible_deployment_version')
+        return self._az_dict.get('deployment_version')
 
     @property
     def inventory_version(self):
-        return self._az_dict.get('ansible_inventory_version')
+        return self._az_dict.get('inventory_version')
 
     @property
     def playbook(self):

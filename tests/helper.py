@@ -43,8 +43,8 @@ env:
     -o ControlMaster=auto
     -o ControlPersist=60s
 az:
-  ansible_deployment_version: master
-  ansible_inventory_version: master
+  deployment_version: master
+  inventory_version: master
 """
 
     f = tempfile.NamedTemporaryFile()
