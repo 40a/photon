@@ -28,8 +28,8 @@ def get_photon_config():
 ---
 playbook: playbooks/openstack/metapod.yml
 inventory: inventory/{az}
+user: user
 flags:
-  user: todo
   connection: ssh
   become: True
 env:

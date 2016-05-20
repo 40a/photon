@@ -49,10 +49,19 @@ class TestConfig(testtools.TestCase):
     def test_inventory(self):
         self.assertEquals('inventory/az', self._config.inventory)
 
+    def test_user(self):
+        self.assertEquals('user', self._config.user)
+
+    def test_az_user(self):
+        d = {'user': 'az_user'}
+        self._config._az_dict.update(d)
+
+        self.assertEquals('az_user', self._config.user)
+
     def test_flags(self):
         expected = {
             'inventory': 'inventory/az',
-            'user': 'todo',
+            'user': 'user',
             'connection': 'ssh',
             'become': True
         }

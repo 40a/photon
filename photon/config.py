@@ -51,6 +51,12 @@ class Config(object):
         return self._config_dict.get('inventory').format(az=self._az)
 
     @property
+    def user(self):
+        u = self._config_dict.get('user')
+
+        return self._az_dict.get('user', u)
+
+    @property
     def env(self):
         d = self._config_dict.get('env')
         d['ANSIBLE_INVENTORY'] = self.inventory
@@ -61,6 +67,7 @@ class Config(object):
     def flags(self):
         d = self._config_dict.get('flags')
         d['inventory'] = self.inventory
+        d['user'] = self.user
 
         return d
 
