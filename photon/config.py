@@ -24,14 +24,6 @@ import yaml
 """
 A class responsible for handling configuration, and provide the data needed
 to construct a proper ``ansible-playbook`` command.
-
----
-playbook: playbooks/openstack/metapod.yml
-inventory: inventory/{az}
-
-az:
-  ansible_deployment_version: 1.0.0
-  ansible_inventory_version: 1.0.0
 """
 
 
@@ -55,12 +47,12 @@ class Config(object):
         return self._config_dict.get('playbook')
 
     @property
-    def inventory(self):
-        return self._config_dict.get('inventory').format(az=self._az)
-
-    @property
     def env(self):
         return self._config_dict.get('env')
+
+    @property
+    def flags(self):
+        return self._config_dict.get('flags')
 
     def _get_az_config(self):
         return self._config_dict.get(self._az)

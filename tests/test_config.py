@@ -33,7 +33,11 @@ class TestConfig(testtools.TestCase):
         config = textwrap.dedent("""
                                  ---
                                  playbook: playbooks/openstack/metapod.yml
-                                 inventory: inventory/{az}
+                                 flags:
+                                   inventory: inventory/{az}
+                                   user: todo
+                                   connection: ssh
+                                   become: True
                                  env:
                                    ANSIBLE_FORCE_COLOR: True
                                    ANSIBLE_HOST_KEY_CHECKING: False
@@ -71,17 +75,24 @@ class TestConfig(testtools.TestCase):
         self.assertEquals('playbooks/openstack/metapod.yml',
                           self._config.playbook)
 
-    def test_inventory(self):
-        self.assertEquals('inventory/az', self._config.inventory)
+    def test_flags(self):
+        expected = {
+            'inventory': 'inventory/{az}',
+            'user': 'todo',
+            'connection': 'ssh',
+            'become': True
+        }
+
+        self.assertDictEqual(expected, self._config.flags)
 
     def test_env(self):
         expected = {
-          'ANSIBLE_FORCE_COLOR': True,
-          'ANSIBLE_HOST_KEY_CHECKING': False,
-          'ANSIBLE_SSH_ARGS': ('-o UserKnownHostsFile=/dev/null '
-                               '-o IdentitiesOnly=yes '
-                               '-o ControlMaster=auto '
-                               '-o ControlPersist=60s'),
+            'ANSIBLE_FORCE_COLOR': True,
+            'ANSIBLE_HOST_KEY_CHECKING': False,
+            'ANSIBLE_SSH_ARGS': ('-o UserKnownHostsFile=/dev/null '
+                                 '-o IdentitiesOnly=yes '
+                                 '-o ControlMaster=auto '
+                                 '-o ControlPersist=60s'),
         }
 
         self.assertDictEqual(expected, self._config.env)
