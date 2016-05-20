@@ -46,9 +46,12 @@ class TestConfig(testtools.TestCase):
         self.assertEquals('playbooks/openstack/metapod.yml',
                           self._config.playbook)
 
+    def test_inventory(self):
+        self.assertEquals('inventory/az', self._config.inventory)
+
     def test_flags(self):
         expected = {
-            'inventory': 'inventory/{az}',
+            'inventory': 'inventory/az',
             'user': 'todo',
             'connection': 'ssh',
             'become': True
@@ -58,6 +61,7 @@ class TestConfig(testtools.TestCase):
 
     def test_env(self):
         expected = {
+            'ANSIBLE_INVENTORY': 'inventory/az',
             'ANSIBLE_FORCE_COLOR': True,
             'ANSIBLE_HOST_KEY_CHECKING': False,
             'ANSIBLE_SSH_ARGS': ('-o UserKnownHostsFile=/dev/null '

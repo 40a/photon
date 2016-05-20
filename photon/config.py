@@ -47,12 +47,22 @@ class Config(object):
         return self._config_dict.get('playbook')
 
     @property
+    def inventory(self):
+        return self._config_dict.get('inventory').format(az=self._az)
+
+    @property
     def env(self):
-        return self._config_dict.get('env')
+        d = self._config_dict.get('env')
+        d['ANSIBLE_INVENTORY'] = self.inventory
+
+        return d
 
     @property
     def flags(self):
-        return self._config_dict.get('flags')
+        d = self._config_dict.get('flags')
+        d['inventory'] = self.inventory
+
+        return d
 
     def _get_az_config(self):
         return self._config_dict.get(self._az)

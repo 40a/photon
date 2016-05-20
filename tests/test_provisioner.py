@@ -41,7 +41,7 @@ class TestProvisioner(testtools.TestCase):
     def test_get_command(self):
         result = self._provisioner._get_command()
         expected = ['ansible-playbook', '--become', '--connection=ssh',
-                    '--inventory=inventory/{az}', '--user=todo']
+                    '--inventory=inventory/az', '--user=todo']
 
         self.assertEquals(expected, result)
 

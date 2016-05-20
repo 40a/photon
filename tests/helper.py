@@ -27,8 +27,8 @@ def get_photon_config():
     config = """
 ---
 playbook: playbooks/openstack/metapod.yml
+inventory: inventory/{az}
 flags:
-  inventory: inventory/{az}
   user: todo
   connection: ssh
   become: True
