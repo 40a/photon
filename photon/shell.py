@@ -26,26 +26,29 @@ Photon CLI wrapper.
 import argparse
 
 import photon
-from photon import command
+from photon import config
+from photon import provisioner
 
 
 def _parse_args():
     ap = argparse.ArgumentParser(prog='photon', description=__doc__.strip())
-    ap.add_argument('--version',
-                    action='version',
-                    version=photon.__version__)
+    ap.add_argument('--version', action='version', version=photon.__version__)
     sp = ap.add_subparsers(title='subcommands',
                            description='Valid subcommands',
                            help='Valid subcommands',
                            dest='subcmd')
-    command._add_parser(sp)
+    cp = sp.add_parser('converge', help='perform an ansible converge')
+    cp.add_argument('--az', required=True, help='name of the az')
+
     args = ap.parse_args()
     return args
 
 
 def main():
     args = _parse_args()
-    args.func(args)
+    c = config.Config(args.az)
+    p = provisioner.Provisioner(c)
+    print p._get_command()
 
 
 if __name__ == '__main__':

@@ -27,6 +27,10 @@ to construct a proper ``ansible-playbook`` command.
 """
 
 
+class ConfigException(Exception):
+    pass
+
+
 class Config(object):
     def __init__(self, az, config='./photon.yml'):
         self._az = az
@@ -72,7 +76,12 @@ class Config(object):
         return d
 
     def _get_az_config(self):
-        return self._config_dict.get(self._az)
+        d = self._config_dict.get(self._az)
+        if d is None:
+            msg = "'{}' az missng from the config file".format(self._az)
+            raise ConfigException(msg)
+
+        return d
 
     def _get_config(self):
         with open(self._config) as stream:

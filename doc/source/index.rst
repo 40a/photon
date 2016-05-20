@@ -3,6 +3,15 @@ photon
 
 A data driven tool to deploy fusion.
 
+Usage
+-----
+
+Execute ansible for the given az.
+
+.. code-block:: bash
+
+	$ photon deploy --az <az_name>
+
 Testing
 -------
 

@@ -36,6 +36,11 @@ class TestConfig(testtools.TestCase):
         super(TestConfig, self).tearDown()
         self._photon_config.close()
 
+    def test_invalid_az_raises(self):
+        self._photon_config = helper.get_photon_config()
+        self.assertRaises(config.ConfigException, config.Config, 'invalid',
+                          self._photon_config.name)
+
     def test_deployment_version(self):
         self.assertEquals('master', self._config.deployment_version)
 
