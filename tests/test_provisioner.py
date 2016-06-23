@@ -20,32 +20,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import testtools
+import pytest
 
 from photon import config
 from photon import provisioner
-from tests import helper
 
 
-class TestProvisioner(testtools.TestCase):
-    def setUp(self):
-        super(TestProvisioner, self).setUp()
-        self._photon_config = helper.get_photon_config()
-        self._config = config.Config('az', self._photon_config.name)
-        self._provisioner = provisioner.Provisioner(self._config)
+@pytest.fixture()
+def photon_config(photon_config_file):
+    return config.Config('az', photon_config_file)
 
-    def tearDown(self):
-        super(TestProvisioner, self).tearDown()
-        self._photon_config.close()
 
-    def test_get_command(self):
-        result = self._provisioner._get_command()
-        expected = ['ansible-playbook', '--become', '--connection=ssh',
-                    '--inventory=inventory/az', '--user=user']
+@pytest.fixture()
+def photon_provisioner(photon_config):
+    return provisioner.Provisioner(photon_config)
 
-        self.assertEquals(expected, result)
 
-    def test_get_flags(self):
-        d = {'foo_bar': 'baz', 'qux': True}
+def test_get_command(photon_provisioner):
+    result = photon_provisioner._get_command()
+    expected = ['ansible-playbook', '--become', '--connection=ssh',
+                '--inventory=inventory/az', '--user=user']
 
-        assert ['--foo-bar=baz', '--qux'] == self._provisioner._get_flags(d)
+    assert expected == result
+
+
+def test_get_flags(photon_provisioner):
+    d = {'foo_bar': 'baz', 'qux': True}
+
+    assert ['--foo-bar=baz', '--qux'] == photon_provisioner._get_flags(d)

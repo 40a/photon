@@ -20,11 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import tempfile
+import os
+
+import pytest
 
 
-def get_photon_config():
-    config = """
+@pytest.fixture()
+def photon_config_content():
+    return """
 ---
 playbook: playbooks/openstack/metapod.yml
 inventory: inventory/{az}
@@ -47,8 +50,17 @@ az:
   inventory_version: master
 """
 
-    f = tempfile.NamedTemporaryFile()
-    f.write(config)
-    f.flush()
 
-    return f
+@pytest.fixture()
+def photon_config_file(photon_config_content, tmpdir, request):
+    d = tmpdir.mkdir('photon')
+    c = d.join(os.extsep.join(('photon', 'yml')))
+    c.write(photon_config_content)
+
+    def cleanup():
+        os.remove(c.strpath)
+        os.rmdir(d.strpath)
+
+    request.addfinalizer(cleanup)
+
+    return c.strpath

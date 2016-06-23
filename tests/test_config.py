@@ -20,76 +20,78 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import testtools
+import pytest
 
 from photon import config
-from tests import helper
 
 
-class TestConfig(testtools.TestCase):
-    def setUp(self):
-        super(TestConfig, self).setUp()
-        self._photon_config = helper.get_photon_config()
-        self._config = config.Config('az', self._photon_config.name)
+@pytest.fixture()
+def photon_config(photon_config_file):
+    return config.Config('az', photon_config_file)
 
-    def tearDown(self):
-        super(TestConfig, self).tearDown()
-        self._photon_config.close()
 
-    def test_invalid_az_raises(self):
-        self._photon_config = helper.get_photon_config()
-        self.assertRaises(config.ConfigException, config.Config, 'invalid',
-                          self._photon_config.name)
+def test_invalid_az_raises(photon_config_file):
+    with pytest.raises(config.ConfigException):
+        config.Config('invalid', photon_config_file)
 
-    def test_deployment_version(self):
-        self.assertEquals('master', self._config.deployment_version)
 
-    def test_inventory_version(self):
-        self.assertEquals('master', self._config.inventory_version)
+def test_deployment_version(photon_config):
+    assert 'master' == photon_config.deployment_version
 
-    def test_playbook(self):
-        self.assertEquals('playbooks/openstack/metapod.yml',
-                          self._config.playbook)
 
-    def test_inventory(self):
-        self.assertEquals('inventory/az', self._config.inventory)
+def test_inventory_version(photon_config):
+    assert 'master' == photon_config.inventory_version
 
-    def test_user(self):
-        self.assertEquals('user', self._config.user)
 
-    def test_az_user(self):
-        d = {'user': 'az_user'}
-        self._config._az_dict.update(d)
+def test_playbook(photon_config):
+    assert 'playbooks/openstack/metapod.yml' == photon_config.playbook
 
-        self.assertEquals('az_user', self._config.user)
 
-    def test_deployment_repo(self):
-        self.assertEquals('git@github.com:metacloud/ansible-systems.git',
-                          self._config.deployment_repo)
+def test_inventory(photon_config):
+    assert 'inventory/az' == photon_config.inventory
 
-    def test_inventory_repo(self):
-        self.assertEquals('git@github.com:metacloud/ansible-inventory.git',
-                          self._config.inventory_repo)
 
-    def test_flags(self):
-        expected = {
-            'inventory': 'inventory/az',
-            'user': 'user',
-            'connection': 'ssh',
-            'become': True
-        }
+def test_user(photon_config):
+    assert 'user' == photon_config.user
 
-        self.assertDictEqual(expected, self._config.flags)
 
-    def test_env(self):
-        expected = {
-            'ANSIBLE_INVENTORY': 'inventory/az',
-            'ANSIBLE_FORCE_COLOR': True,
-            'ANSIBLE_HOST_KEY_CHECKING': False,
-            'ANSIBLE_SSH_ARGS': ('-o UserKnownHostsFile=/dev/null '
-                                 '-o IdentitiesOnly=yes '
-                                 '-o ControlMaster=auto '
-                                 '-o ControlPersist=60s'),
-        }
+def test_az_user(photon_config):
+    d = {'user': 'az_user'}
+    photon_config._az_dict.update(d)
 
-        self.assertDictEqual(expected, self._config.env)
+    assert 'az_user' == photon_config.user
+
+
+def test_deployment_repo(photon_config):
+    assert ('git@github.com:metacloud/ansible-systems.git' ==
+            photon_config.deployment_repo)
+
+
+def test_inventory_repo(photon_config):
+    assert ('git@github.com:metacloud/ansible-inventory.git' ==
+            photon_config.inventory_repo)
+
+
+def test_flags(photon_config):
+    expected = {
+        'inventory': 'inventory/az',
+        'user': 'user',
+        'connection': 'ssh',
+        'become': True
+    }
+
+    assert expected == photon_config.flags
+
+
+def test_env(photon_config):
+    expected = {
+        'ANSIBLE_INVENTORY': 'inventory/az',
+        'ANSIBLE_FORCE_COLOR': True,
+        'ANSIBLE_HOST_KEY_CHECKING': False,
+        'ANSIBLE_SSH_ARGS': ('-o UserKnownHostsFile=/dev/null '
+                             '-o IdentitiesOnly=yes '
+                             '-o ControlMaster=auto '
+                             '-o ControlPersist=60s'),
+    }
+
+    assert expected == photon_config.env
