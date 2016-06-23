@@ -20,77 +20,69 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import os
 import yaml
 """
 A class responsible for handling configuration, and provide the data needed
-to construct a proper ``ansible-playbook`` command.
+to construct the proper ``ansible-playbook`` commands.
 """
 
 
-class ConfigException(Exception):
-    pass
-
-
 class Config(object):
-    def __init__(self, az, config='./photon.yml'):
+    def __init__(self, az, config='photon.yml'):
         self._az = az
         self._config = config
         self._config_dict = self._get_config()
         self._az_dict = self._get_az_config()
 
     @property
-    def deployment_version(self):
-        return self._az_dict.get('deployment_version')
-
-    @property
-    def inventory_version(self):
-        return self._az_dict.get('inventory_version')
-
-    @property
-    def playbook(self):
-        return self._config_dict.get('playbook')
-
-    @property
     def inventory(self):
-        return self._config_dict.get('inventory').format(az=self._az)
+        """ Return the path to inventory.  The inventory can be overriden in
+        the ``az`` section of the config.
+
+        :return: str
+        """
+        i = self._config_dict.get('inventory')
+        fi = self._az_dict.get('inventory', i)
+
+        return fi.format(az=self._az)
 
     @property
     def user(self):
-        u = self._config_dict.get('user')
+        """ Return the current user.
 
-        return self._az_dict.get('user', u)
-
-    @property
-    def deployment_repo(self):
-        return self._config_dict.get('deployment_repo')
-
-    @property
-    def inventory_repo(self):
-        return self._config_dict.get('inventory_repo')
-
-    @property
-    def env(self):
-        d = self._config_dict.get('env')
-        d['ANSIBLE_INVENTORY'] = self.inventory
-
-        return d
+        :return: str
+        """
+        return os.environ.get('USER')
 
     @property
     def flags(self):
-        d = self._config_dict.get('flags')
-        d['inventory'] = self.inventory
-        d['user'] = self.user
+        """ Return and list of command line flags used by the provisioner.
 
-        return d
+        :return: list
+        """
+        return sorted(self._config_dict.get('flags'))
+
+    @property
+    def env(self):
+        """ Return an environment dict used by the provisioner.  The
+        environment can be overriden in the ``az`` section of the config.
+
+        :return: dict
+        """
+        e = self._config_dict.get('env', {})
+
+        return self._az_dict.get('env', e)
+
+    @property
+    def workflows(self):
+        return self._config_dict.get('workflows')
 
     def _get_az_config(self):
-        d = self._config_dict.get(self._az)
-        if d is None:
-            msg = "'{}' az missng from the config file".format(self._az)
-            raise ConfigException(msg)
+        d = self._config_dict.get('azs', {})
 
-        return d
+        return d.get(self._az, {})
 
     def _get_config(self):
         with open(self._config) as stream:
-            return yaml.load(stream)
+            return yaml.safe_load(stream)

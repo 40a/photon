@@ -19,33 +19,73 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+"""
+A class responsible for construct the proper ``ansible-playbook`` commands.
+"""
+from __future__ import print_function
+
+import sys
+
+import colorama
 
 
 class Provisioner(object):
-    def __init__(self, config):
+    def __init__(self, config, action, target=None):
         self._config = config
+        self._action = action
+        self._target = target
+        colorama.init(autoreset=True)
 
-    def _get_command(self):
-        """ Generates and returns a string which the provisioner invokes.
-        :return: str
+    def _get_commands(self):
+        """ Generates and returns a list of lists containing the commands
+        the provisioner will consume.
+
+        :return: list
         """
-        flags = self._config.flags
+        d = self._config.workflows.get(self._action, {})
 
-        cmd = []
-        cmd.extend(['ansible-playbook'])
-        cmd.extend(self._get_flags(flags))
+        commands = []
+        for playbook in d.get('playbooks', []):
+            cmd = [
+                'ansible-playbook',
+                self._get_flag('inventory', self._config.inventory),
+                self._get_flag('user', self._config.user),
+                self._config.flags,
+                d.get('extra_flags', []),
+                playbook,
+            ]
+            if self._target:
+                target = self._get_flag('limit', self._target, quoted=True)
+                cmd.extend([target])
 
-        return cmd
+            commands.append(self._flatten(cmd))
 
-    def _get_flags(self, d):
-        return ['--{}={}'.format(k, v) if v else '--{}'.format(k)
-                for k, v in self._flags_generator(d)]
+        return commands
 
-    def _flags_generator(self, d):
-        for k in sorted(d.iterkeys()):
-            v = d[k]
-            k = k.replace('_', '-')
-            if v is True:
-                yield k, None
+    def run(self):
+        msg = '{}*** Ansible commands to verify ***'.format(
+            colorama.Fore.YELLOW)
+        print(msg, file=sys.stderr)
+        print(file=sys.stderr)
+        env = ['{}={}'.format(k, v) for k, v in self._config.env.iteritems()]
+        for command in self._get_commands():
+            print(' '.join(env), end=' ')
+            print(' '.join(command))
+
+    # Taken from compiler/ast, since deprecated in python 3
+    def _flatten(self, seq):
+        l = []
+        for elt in seq:
+            t = type(elt)
+            if t is tuple or t is list:
+                for elt2 in self._flatten(elt):
+                    l.append(elt2)
             else:
-                yield k, v
+                l.append(elt)
+        return l
+
+    def _get_flag(self, flag, value, quoted=False):
+        if quoted:
+            return "--{}=\'{}\'".format(flag, value)
+        else:
+            return '--{}={}'.format(flag, value)

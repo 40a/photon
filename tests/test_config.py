@@ -20,78 +20,45 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import pytest
-
 from photon import config
-
-
-@pytest.fixture()
-def photon_config(photon_config_file):
-    return config.Config('az', photon_config_file)
-
-
-def test_invalid_az_raises(photon_config_file):
-    with pytest.raises(config.ConfigException):
-        config.Config('invalid', photon_config_file)
-
-
-def test_deployment_version(photon_config):
-    assert 'master' == photon_config.deployment_version
-
-
-def test_inventory_version(photon_config):
-    assert 'master' == photon_config.inventory_version
-
-
-def test_playbook(photon_config):
-    assert 'playbooks/openstack/metapod.yml' == photon_config.playbook
 
 
 def test_inventory(photon_config):
     assert 'inventory/az' == photon_config.inventory
 
 
-def test_user(photon_config):
+def test_az_inventory(photon_config_file):
+    c = config.Config('az/test', photon_config_file)
+
+    assert 'az_inventory' == c.inventory
+
+
+def test_user(photon_config, mocked_user):
     assert 'user' == photon_config.user
 
 
-def test_az_user(photon_config):
-    d = {'user': 'az_user'}
-    photon_config._az_dict.update(d)
-
-    assert 'az_user' == photon_config.user
-
-
-def test_deployment_repo(photon_config):
-    assert ('git@github.com:metacloud/ansible-systems.git' ==
-            photon_config.deployment_repo)
-
-
-def test_inventory_repo(photon_config):
-    assert ('git@github.com:metacloud/ansible-inventory.git' ==
-            photon_config.inventory_repo)
-
-
 def test_flags(photon_config):
-    expected = {
-        'inventory': 'inventory/az',
-        'user': 'user',
-        'connection': 'ssh',
-        'become': True
-    }
+    expected = ['--become', '--connection=ssh']
 
     assert expected == photon_config.flags
 
 
 def test_env(photon_config):
-    expected = {
-        'ANSIBLE_INVENTORY': 'inventory/az',
-        'ANSIBLE_FORCE_COLOR': True,
-        'ANSIBLE_HOST_KEY_CHECKING': False,
-        'ANSIBLE_SSH_ARGS': ('-o UserKnownHostsFile=/dev/null '
-                             '-o IdentitiesOnly=yes '
-                             '-o ControlMaster=auto '
-                             '-o ControlPersist=60s'),
-    }
+    expected = {}
 
     assert expected == photon_config.env
+
+
+def test_env_az(photon_config_file):
+    c = config.Config('az/env_test', photon_config_file)
+    expected = {'ANSIBLE_HOST_KEY_CHECKING': False,
+                'ANSIBLE_INSTRUMENT_MODULES': True,
+                'ANSIBLE_SSH_ARGS': '"-F $HOME/.axion/ssh_config"'}
+
+    assert expected == c.env
+
+
+def test_workflows(photon_config):
+    w = photon_config.workflows
+
+    assert len(w) == 3

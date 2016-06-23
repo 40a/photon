@@ -33,22 +33,28 @@ from photon import provisioner
 def _parse_args():
     ap = argparse.ArgumentParser(prog='photon', description=__doc__.strip())
     ap.add_argument('--version', action='version', version=photon.__version__)
-    sp = ap.add_subparsers(title='subcommands',
-                           description='Valid subcommands',
-                           help='Valid subcommands',
-                           dest='subcmd')
-    cp = sp.add_parser('converge', help='perform an ansible converge')
-    cp.add_argument('--az', required=True, help='name of the az')
-
+    rp = ap.add_argument_group('required arguments')
+    rp.add_argument('--az',
+                    required=True,
+                    help='name of the availability zone')
+    rp.add_argument('--action',
+                    required=True,
+                    choices=['upgrade', 'restart', 'deploy'],
+                    help='name of the workflow to perform')
+    ap.add_argument('--target',
+                    help='target selected hosts/patterns')
+    ap.add_argument('--config',
+                    default='photon.yml',
+                    help='path to the photon config')
     args = ap.parse_args()
     return args
 
 
 def main():
     args = _parse_args()
-    c = config.Config(args.az)
-    p = provisioner.Provisioner(c)
-    print p._get_command()
+    c = config.Config(az=args.az, config=args.config)
+    p = provisioner.Provisioner(c, args.action, args.target)
+    p.run()
 
 
 if __name__ == '__main__':

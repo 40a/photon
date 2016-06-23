@@ -3,6 +3,3 @@
 .tox/
 .testrepository/
 doc/build/
-
-# Ignore while developing
-photon.yml

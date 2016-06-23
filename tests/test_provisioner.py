@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import copy
+
 import pytest
 
 from photon import config
@@ -27,24 +29,81 @@ from photon import provisioner
 
 
 @pytest.fixture()
-def photon_config(photon_config_file):
-    return config.Config('az', photon_config_file)
+def base_command():
+    return ['ansible-playbook', '--inventory=inventory/az', '--user=user',
+            '--become', '--connection=ssh']
 
 
 @pytest.fixture()
-def photon_provisioner(photon_config):
-    return provisioner.Provisioner(photon_config)
+def command_with_extra_flags(base_command):
+    cmd = copy.copy(base_command)
+    cmd.extend(['-e "skip_handlers=True"',
+                '-e "openstack_serial_controller=1"',
+                '--skip-tags "functional_tests,integration_tests"'])
+
+    return cmd
 
 
-def test_get_command(photon_provisioner):
-    result = photon_provisioner._get_command()
-    expected = ['ansible-playbook', '--become', '--connection=ssh',
-                '--inventory=inventory/az', '--user=user']
-
-    assert expected == result
+def test_get_commands(photon_provisioner):
+    assert [] == photon_provisioner._get_commands()
 
 
-def test_get_flags(photon_provisioner):
-    d = {'foo_bar': 'baz', 'qux': True}
+def test_extra_flags_missing(photon_config_file, base_command, mocked_user):
+    c = config.Config('az', photon_config_file)
+    p = provisioner.Provisioner(c, 'restart')
+    result = p._get_commands()
 
-    assert ['--foo-bar=baz', '--qux'] == photon_provisioner._get_flags(d)
+    expected = copy.copy(base_command)
+    expected.extend(['playbooks/openstack/metapod/service_restart.yml'])
+
+    assert expected == result[0]
+
+
+def test_upgrade_workflow(photon_config, command_with_extra_flags,
+                          mocked_user):
+    p = provisioner.Provisioner(photon_config, 'upgrade')
+    result = p._get_commands()
+
+    expected = copy.copy(command_with_extra_flags)
+    expected.extend(['playbooks/openstack/metapod/package_upgrade.yml'])
+
+    assert expected == result[0]
+
+    expected = copy.copy(command_with_extra_flags)
+    expected.extend(['playbooks/openstack/metapod.yml'])
+
+    assert expected == result[1]
+
+
+def test_upgrade_workflow_with_limit(photon_config, command_with_extra_flags,
+                                     mocked_user):
+    p = provisioner.Provisioner(photon_config, 'upgrade', 'mcp[1]')
+    result = p._get_commands()
+
+    expected = copy.copy(command_with_extra_flags)
+    expected.extend(['playbooks/openstack/metapod/package_upgrade.yml'])
+    expected.extend(["--limit='mcp[1]'"])
+
+    assert expected == result[0]
+
+
+def test_restart_workflow(photon_config, base_command, mocked_user):
+    p = provisioner.Provisioner(photon_config, 'restart')
+    result = p._get_commands()
+
+    expected = copy.copy(base_command)
+    expected.extend(['playbooks/openstack/metapod/service_restart.yml'])
+
+    assert expected == result[0]
+
+
+def test_get_flag(photon_provisioner):
+    result = photon_provisioner._get_flag('foo', 'bar')
+
+    assert '--foo=bar' == result
+
+
+def test_get_flag_quoted(photon_provisioner):
+    result = photon_provisioner._get_flag('foo', 'bar', quoted=True)
+
+    assert "--foo='bar'" == result

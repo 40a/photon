@@ -6,11 +6,38 @@ A data driven tool to deploy fusion.
 Usage
 -----
 
-Execute ansible for the given az.
+Display upgrade steps of entity ``foo`` az ``bar``
 
 .. code-block:: bash
 
-	$ photon deploy --az <az_name>
+	$ photon --az foo/bar --action upgrade
+
+Display upgrade steps of entity ``foo`` az ``bar`` on the controllers
+
+.. code-block:: bash
+
+	$ photon --az foo/bar --action upgrade --target 'mcp'
+
+Display upgrade steps of entity ``foo`` az ``bar`` on mcp1
+
+.. code-block:: bash
+
+	$ photon --az foo/bar --action upgrade --target 'mcp[0]'
+
+Display restart steps of entity ``foo`` az ``bar``
+
+.. code-block:: bash
+
+	$ photon --az foo/bar --action restart
+
+Perform the action(s) to be executed
+
+Decided to pipe the commands into a shell, instead of implementing a
+a streaming stdout subprocess iterator.
+
+.. code-block:: bash
+
+	$ photon --az $az --action $action 2>/dev/null | sh
 
 Testing
 -------

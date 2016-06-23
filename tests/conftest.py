@@ -24,30 +24,52 @@ import os
 
 import pytest
 
+from photon import config
+from photon import provisioner
+
+
+@pytest.fixture()
+def photon_config(photon_config_file):
+    return config.Config('az', photon_config_file)
+
+
+@pytest.fixture()
+def photon_provisioner(photon_config):
+    return provisioner.Provisioner(photon_config, None)
+
 
 @pytest.fixture()
 def photon_config_content():
     return """
 ---
-playbook: playbooks/openstack/metapod.yml
 inventory: inventory/{az}
-user: user
-deployment_repo: git@github.com:metacloud/ansible-systems.git
-inventory_repo: git@github.com:metacloud/ansible-inventory.git
 flags:
-  connection: ssh
-  become: True
-env:
-  ANSIBLE_FORCE_COLOR: True
-  ANSIBLE_HOST_KEY_CHECKING: False
-  ANSIBLE_SSH_ARGS: >-
-    -o UserKnownHostsFile=/dev/null
-    -o IdentitiesOnly=yes
-    -o ControlMaster=auto
-    -o ControlPersist=60s
-az:
-  deployment_version: master
-  inventory_version: master
+  - --connection=ssh
+  - --become
+env: {}
+azs:
+  az/test:
+    inventory: az_inventory
+  az/env_test:
+    env:
+      ANSIBLE_HOST_KEY_CHECKING: False
+      ANSIBLE_INSTRUMENT_MODULES: True
+      ANSIBLE_SSH_ARGS: '"-F $HOME/.axion/ssh_config"'
+workflows:
+  upgrade:
+    extra_flags:
+      - -e "skip_handlers=True"
+      - -e "openstack_serial_controller=1"
+      - --skip-tags "functional_tests,integration_tests"
+    playbooks:
+      - playbooks/openstack/metapod/package_upgrade.yml
+      - playbooks/openstack/metapod.yml
+  restart:
+    playbooks:
+      - playbooks/openstack/metapod/service_restart.yml
+  deploy:
+    playbooks:
+      - playbooks/openstack/metapod.yml
 """
 
 
@@ -64,3 +86,11 @@ def photon_config_file(photon_config_content, tmpdir, request):
     request.addfinalizer(cleanup)
 
     return c.strpath
+
+
+@pytest.fixture()
+def mocked_user(monkeypatch):
+    def mockreturn():
+        return {'USER': 'user'}
+
+    return monkeypatch.setattr(os, 'environ', mockreturn())

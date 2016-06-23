@@ -1,0 +1,28 @@
+---
+inventory: inventory/{az}
+flags:
+  - --connection=ssh
+  - --become
+env: {}
+azs:
+  proxmox:
+    env:
+      ANSIBLE_HOST_KEY_CHECKING: False
+      ANSIBLE_INSTRUMENT_MODULES: True
+      ANSIBLE_SSH_ARGS: '"-F $HOME/.axion/ssh_config"'
+    inventory: inventory/fusion/metapod/proxmox
+workflows:
+  upgrade:
+    extra_flags:
+      - -e "skip_handlers=True"
+      - -e "openstack_serial_controller=1"
+      - --skip-tags "functional_tests,integration_tests"
+    playbooks:
+      - playbooks/openstack/metapod/package_upgrade.yml
+      - playbooks/openstack/metapod.yml
+  restart:
+    playbooks:
+      - playbooks/openstack/metapod/service_restart.yml
+  deploy:
+    playbooks:
+      - playbooks/openstack/metapod.yml

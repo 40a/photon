@@ -9,6 +9,7 @@ Docs
 .. code-block:: bash
 
   $ tox -e doc
+  $ open doc/build/html/index.html
 
 License
 -------
