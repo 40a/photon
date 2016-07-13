@@ -33,8 +33,8 @@ def test_az_inventory(photon_config_file):
     assert 'az_inventory' == c.inventory
 
 
-def test_user(photon_config, mocked_user):
-    assert 'user' == photon_config.user
+def test_user(photon_config):
+    assert '$USER' == photon_config.user
 
 
 def test_flags(photon_config):

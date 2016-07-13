@@ -30,7 +30,7 @@ from photon import provisioner
 
 @pytest.fixture()
 def base_command():
-    return ['ansible-playbook', '--inventory=inventory/az', '--user=user',
+    return ['ansible-playbook', '--inventory=inventory/az', '--user=$USER',
             '--become', '--connection=ssh']
 
 
@@ -48,7 +48,7 @@ def test_get_commands(photon_provisioner):
     assert [] == photon_provisioner._get_commands()
 
 
-def test_extra_flags_missing(photon_config_file, base_command, mocked_user):
+def test_extra_flags_missing(photon_config_file, base_command):
     c = config.Config('az', photon_config_file)
     p = provisioner.Provisioner(c, 'restart')
     result = p._get_commands()
@@ -59,8 +59,7 @@ def test_extra_flags_missing(photon_config_file, base_command, mocked_user):
     assert expected == result[0]
 
 
-def test_upgrade_workflow(photon_config, command_with_extra_flags,
-                          mocked_user):
+def test_upgrade_workflow(photon_config, command_with_extra_flags):
     p = provisioner.Provisioner(photon_config, 'upgrade')
     result = p._get_commands()
 
@@ -75,8 +74,7 @@ def test_upgrade_workflow(photon_config, command_with_extra_flags,
     assert expected == result[1]
 
 
-def test_upgrade_workflow_with_limit(photon_config, command_with_extra_flags,
-                                     mocked_user):
+def test_upgrade_workflow_with_limit(photon_config, command_with_extra_flags):
     p = provisioner.Provisioner(photon_config, 'upgrade', 'mcp[1]')
     result = p._get_commands()
 
@@ -87,7 +85,7 @@ def test_upgrade_workflow_with_limit(photon_config, command_with_extra_flags,
     assert expected == result[0]
 
 
-def test_restart_workflow(photon_config, base_command, mocked_user):
+def test_restart_workflow(photon_config, base_command):
     p = provisioner.Provisioner(photon_config, 'restart')
     result = p._get_commands()
 
