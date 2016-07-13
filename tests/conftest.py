@@ -26,6 +26,7 @@ import pytest
 
 from photon import config
 from photon import provisioner
+from photon.ansible_playbook import AnsiblePlaybook
 
 
 @pytest.fixture()
@@ -36,6 +37,11 @@ def photon_config(photon_config_file):
 @pytest.fixture()
 def photon_provisioner(photon_config):
     return provisioner.Provisioner(photon_config, None)
+
+
+@pytest.fixture()
+def ansible_playbook():
+    return AnsiblePlaybook()
 
 
 @pytest.fixture()
@@ -58,9 +64,9 @@ azs:
 workflows:
   upgrade:
     extra_flags:
-      - -e "skip_handlers=True"
-      - -e "openstack_serial_controller=1"
-      - --skip-tags "functional_tests,integration_tests"
+      - --extra-vars="skip_handlers=True"
+      - --extra-vars="openstack_serial_controller=1"
+      - --skip-tags="functional_tests,integration_tests"
     playbooks:
       - playbooks/openstack/metapod/package_upgrade.yml
       - playbooks/openstack/metapod.yml

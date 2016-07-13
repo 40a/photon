@@ -14,9 +14,9 @@ azs:
 workflows:
   upgrade:
     extra_flags:
-      - -e "skip_handlers=True"
-      - -e "openstack_serial_controller=1"
-      - --skip-tags "functional_tests,integration_tests"
+      - --extra-vars="skip_handlers=True"
+      - --extra-vars="openstack_serial_controller=1"
+      - --skip-tags="functional_tests,integration_tests"
     playbooks:
       - playbooks/openstack/metapod/package_upgrade.yml
       - playbooks/openstack/metapod.yml

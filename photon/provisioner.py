@@ -28,6 +28,8 @@ import sys
 
 import colorama
 
+from photon.ansible_playbook import AnsiblePlaybook
+
 
 class Provisioner(object):
     def __init__(self, config, action, target=None):
@@ -46,19 +48,18 @@ class Provisioner(object):
 
         commands = []
         for playbook in d.get('playbooks', []):
-            cmd = [
-                'ansible-playbook',
-                self._get_flag('inventory', self._config.inventory),
-                self._get_flag('user', self._config.user),
-                self._config.flags,
-                d.get('extra_flags', []),
-                playbook,
-            ]
+            a = AnsiblePlaybook()
+            a.add_flag('inventory', self._config.inventory)
+            a.add_flag('user', self._config.user)
+            for f in self._config.flags:
+                a.add_argument(f)
+            for f in d.get('extra_flags', []):
+                a.add_argument(f)
+            a.add_argument(playbook)
             if self._target:
-                target = self._get_flag('limit', self._target, quoted=True)
-                cmd.extend([target])
+                a.add_flag('limit', self._target, quoted=True)
 
-            commands.append(self._flatten(cmd))
+            commands.append(a.bake)
 
         return commands
 
@@ -71,21 +72,3 @@ class Provisioner(object):
         for command in self._get_commands():
             print(' '.join(env), end=' ')
             print(' '.join(command))
-
-    # Taken from compiler/ast, since deprecated in python 3
-    def _flatten(self, seq):
-        l = []
-        for elt in seq:
-            t = type(elt)
-            if t is tuple or t is list:
-                for elt2 in self._flatten(elt):
-                    l.append(elt2)
-            else:
-                l.append(elt)
-        return l
-
-    def _get_flag(self, flag, value, quoted=False):
-        if quoted:
-            return "--{}=\'{}\'".format(flag, value)
-        else:
-            return '--{}={}'.format(flag, value)
