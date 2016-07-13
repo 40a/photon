@@ -42,7 +42,7 @@ class AnsiblePlaybook(object):
         flag = self._get_flag(flag, value, quoted)
         self._add(flag)
 
-    def add_argument(self, argument):
+    def add_as_is(self, argument):
         """
         Adds command line arguments as-is to the ansible command managed
         internally by `self._command`.

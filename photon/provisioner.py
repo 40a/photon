@@ -52,10 +52,10 @@ class Provisioner(object):
             a.add_flag('inventory', self._config.inventory)
             a.add_flag('user', self._config.user)
             for f in self._config.flags:
-                a.add_argument(f)
+                a.add_as_is(f)
             for f in d.get('extra_flags', []):
-                a.add_argument(f)
-            a.add_argument(playbook)
+                a.add_as_is(f)
+            a.add_as_is(playbook)
             if self._target:
                 a.add_flag('limit', self._target, quoted=True)
 

@@ -37,10 +37,10 @@ def test_add_flag_with_quoted(ansible_playbook):
     assert ['ansible-playbook', "--foo='bar'"] == ansible_playbook._command
 
 
-def test_add_argument(ansible_playbook):
-    ansible_playbook.add_argument('foo')
-    ansible_playbook.add_argument('bar')
-    ansible_playbook.add_argument('--baz')
+def test_add_as_is(ansible_playbook):
+    ansible_playbook.add_as_is('foo')
+    ansible_playbook.add_as_is('bar')
+    ansible_playbook.add_as_is('--baz')
 
     assert ['ansible-playbook', 'foo', 'bar', '--baz'
             ] == ansible_playbook._command
