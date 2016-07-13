@@ -37,9 +37,9 @@ def base_command():
 @pytest.fixture()
 def command_with_extra_flags(base_command):
     cmd = copy.copy(base_command)
-    cmd.extend(['-e "skip_handlers=True"',
-                '-e "openstack_serial_controller=1"',
-                '--skip-tags "functional_tests,integration_tests"'])
+    cmd.extend(['--extra-vars="skip_handlers=True"',
+                '--extra-vars="openstack_serial_controller=1"',
+                '--skip-tags="functional_tests,integration_tests"'])
 
     return cmd
 
@@ -95,15 +95,3 @@ def test_restart_workflow(photon_config, base_command, mocked_user):
     expected.extend(['playbooks/openstack/metapod/service_restart.yml'])
 
     assert expected == result[0]
-
-
-def test_get_flag(photon_provisioner):
-    result = photon_provisioner._get_flag('foo', 'bar')
-
-    assert '--foo=bar' == result
-
-
-def test_get_flag_quoted(photon_provisioner):
-    result = photon_provisioner._get_flag('foo', 'bar', quoted=True)
-
-    assert "--foo='bar'" == result
