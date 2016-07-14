@@ -48,6 +48,7 @@ def ansible_playbook():
 def photon_config_content():
     return """
 ---
+user: $USER
 inventory: inventory/{az}
 flags:
   - --connection=ssh
@@ -92,11 +93,3 @@ def photon_config_file(photon_config_content, tmpdir, request):
     request.addfinalizer(cleanup)
 
     return c.strpath
-
-
-@pytest.fixture()
-def mocked_user(monkeypatch):
-    def mockreturn():
-        return {'USER': 'user'}
-
-    return monkeypatch.setattr(os, 'environ', mockreturn())

@@ -20,7 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import os
 import yaml
 """
 A class responsible for handling configuration, and provide the data needed
@@ -49,11 +48,7 @@ class Config(object):
 
     @property
     def user(self):
-        """ Return the current user.
-
-        :return: str
-        """
-        return os.environ.get('USER')
+        return self._config_dict.get('user')
 
     @property
     def flags(self):

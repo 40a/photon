@@ -41,8 +41,7 @@ def _parse_args():
                     required=True,
                     choices=['upgrade', 'restart', 'deploy'],
                     help='name of the workflow to perform')
-    ap.add_argument('--target',
-                    help='target selected hosts/patterns')
+    ap.add_argument('--target', help='target selected hosts/patterns')
     ap.add_argument('--config',
                     default='photon.yml',
                     help='path to the photon config')
