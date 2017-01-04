@@ -1,3 +1,4 @@
 colorama
 pbr
 pyyaml
+sh

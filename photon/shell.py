@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# Copyright (c) 2016 Cisco Systems
+# Copyright (c) 2017 Cisco Systems
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,7 @@
 """
 Photon CLI wrapper.
 """
+from __future__ import print_function
 
 import argparse
 
@@ -29,31 +30,32 @@ import photon
 from photon import config
 from photon import provisioner
 
-
-def _parse_args():
-    ap = argparse.ArgumentParser(prog='photon', description=__doc__.strip())
-    ap.add_argument('--version', action='version', version=photon.__version__)
-    rp = ap.add_argument_group('required arguments')
-    rp.add_argument('--az',
-                    required=True,
-                    help='name of the availability zone')
-    rp.add_argument('--action',
-                    required=True,
-                    choices=['upgrade', 'restart', 'deploy'],
-                    help='name of the workflow to perform')
-    ap.add_argument('--target', help='target selected hosts/patterns')
-    ap.add_argument('--config',
-                    default='photon.yml',
-                    help='path to the photon config')
-    args = ap.parse_args()
-    return args
+ap = argparse.ArgumentParser(prog='photon', description=__doc__.strip())
+ap.add_argument('--version', action='version', version=photon.__version__)
+rp = ap.add_argument_group('required arguments')
+rp.add_argument('--az', required=True, help='name of the availability zone')
+rp.add_argument('--workflow',
+                required=True,
+                help='name of the workflow to perform')
+ap.add_argument('--config',
+                default='photon.yml',
+                help='path to the photon config')
+ap.add_argument('--resume',
+                default=1,
+                help='playbook position to start at within workflow')
+args = ap.parse_args()
 
 
 def main():
-    args = _parse_args()
-    c = config.Config(az=args.az, config=args.config)
-    p = provisioner.Provisioner(c, args.action, args.target)
-    p.run()
+    try:
+        c = config.Config(az=args.az,
+                          workflow=args.workflow,
+                          config_file=args.config)
+    except photon.config.ConfigException as e:
+        ap.error(e)
+
+    p = provisioner.Provisioner(c)
+    p.run(args.resume)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# Copyright (c) 2016 Cisco Systems
+# Copyright (c) 2017 Cisco Systems
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,61 +26,50 @@ import pytest
 
 from photon import config
 from photon import provisioner
-from photon.ansible_playbook import AnsiblePlaybook
 
 
-@pytest.fixture()
-def photon_config(photon_config_file):
-    return config.Config('az', photon_config_file)
+@pytest.fixture
+def photon_config(request, photon_config_file):
+    return config.Config(*request.param, config_file=photon_config_file)
 
 
-@pytest.fixture()
-def photon_provisioner(photon_config):
-    return provisioner.Provisioner(photon_config, None)
+@pytest.fixture
+def photon_provisioner(photon_config_file):
+    c = config.Config('test', 'upgrade', config_file=photon_config_file)
+    return provisioner.Provisioner(c)
 
 
-@pytest.fixture()
-def ansible_playbook():
-    return AnsiblePlaybook()
-
-
-@pytest.fixture()
+@pytest.fixture
 def photon_config_content():
     return """
 ---
-user: $USER
-inventory: inventory/{az}
-flags:
-  - --connection=ssh
-  - --become
-env: {}
 azs:
-  az/test:
+  test:
     inventory: az_inventory
-  az/env_test:
     env:
-      ANSIBLE_HOST_KEY_CHECKING: False
-      ANSIBLE_INSTRUMENT_MODULES: True
-      ANSIBLE_SSH_ARGS: '"-F $HOME/.axion/ssh_config"'
+      TEST_PHOTON_ENV: True
+  test_invalid:
+    inventory: az_invalid_inventory
 workflows:
   upgrade:
-    extra_flags:
-      - --extra-vars="skip_handlers=True"
-      - --extra-vars="openstack_serial_controller=1"
-      - --skip-tags="functional_tests,integration_tests"
+    flags:
+      - --become
     playbooks:
-      - playbooks/openstack/metapod/package_upgrade.yml
-      - playbooks/openstack/metapod.yml
+      - path: playbooks/openstack/metapod/package_upgrade.yml
+        flags:
+          - --extra-vars="skip_handlers=True"
+          - --extra-vars="openstack_serial_controller=1"
+          - --skip-tags="functional_tests,integration_tests"
+      - path: playbooks/openstack/metapod/package_upgrade2.yml
+    allowed_azs:
+      - test
   restart:
     playbooks:
-      - playbooks/openstack/metapod/service_restart.yml
-  deploy:
-    playbooks:
-      - playbooks/openstack/metapod.yml
+      - path: playbooks/openstack/metapod/restart.yml
 """
 
 
-@pytest.fixture()
+@pytest.fixture
 def photon_config_file(photon_config_content, tmpdir, request):
     d = tmpdir.mkdir('photon')
     c = d.join(os.extsep.join(('photon', 'yml')))
