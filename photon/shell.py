@@ -51,7 +51,7 @@ def main():
         c = config.Config(az=args.az,
                           workflow=args.workflow,
                           config_file=args.config)
-    except photon.config.ConfigException as e:
+    except photon.config.ConfigError as e:
         ap.error(e)
 
     p = provisioner.Provisioner(c)

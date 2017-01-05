@@ -83,12 +83,12 @@ def test_get_working_az(photon_config):
 # can't use photon_config fixture here since we need to catch an exception it
 # raises during instantiation
 def test_get_config_invalid(photon_config_file):
-    with pytest.raises(photon.config.ConfigException):
+    with pytest.raises(photon.config.ConfigError):
         config.Config('test_invalid', 'upgrade', config_file='fake.yml')
 
 
 def test_workflow_allowed_invalid(photon_config_file):
-    with pytest.raises(photon.config.ConfigException):
+    with pytest.raises(photon.config.ConfigError):
         config.Config('test_invalid',
                       'upgrade',
                       config_file=photon_config_file)

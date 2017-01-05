@@ -24,7 +24,7 @@ import os
 import yaml
 
 
-class ConfigException(Exception):
+class ConfigError(Exception):
     pass
 
 
@@ -99,7 +99,7 @@ class Config(object):
         """Get all information about current workflow.
 
         Raises:
-            ConfigException: When provided workflow isn't found in config.
+            ConfigError: When provided workflow isn't found in config.
         Returns:
             dict: Dictionary containing current workflow config.
         """
@@ -107,7 +107,7 @@ class Config(object):
             return self._config['workflows'][self._workflow]
         except KeyError:
             msg = "Unknown workflow '{}'. Valid workflows are: {}"
-            raise ConfigException(msg.format(self._workflow, ', '.join(
+            raise ConfigError(msg.format(self._workflow, ', '.join(
                 self._get_available_workflows())))
 
     def _get_allowed_azs(self):
@@ -139,7 +139,7 @@ class Config(object):
         """Read contents of YAML config file.
 
         Raises:
-            ConfigException: If config file can't be found.
+            ConfigError: If config file can't be found.
         Returns:
             dict: Dictionary representation of YAML config file.
         """
@@ -150,7 +150,7 @@ class Config(object):
             # raise our own exception if config file is not found
             if e.errno == 2:
                 msg = "Unable to locate config file '{}'."
-                raise ConfigException(msg.format(self._config_file))
+                raise ConfigError(msg.format(self._config_file))
             # re-raise IOError for all other errors
             else:
                 raise
@@ -159,7 +159,7 @@ class Config(object):
         """Get all information about current AZ.
 
         Raises:
-            ConfigException: When provided AZ isn't found in config.
+            ConfigError: When provided AZ isn't found in config.
         Returns:
             dict: Dictionary containing current AZ config.
         """
@@ -167,14 +167,14 @@ class Config(object):
             return self._config['azs'][self._az]
         except KeyError:
             msg = "Unknown az '{}'. Valid AZs are: {}"
-            raise ConfigException(msg.format(self._az, ', '.join(
+            raise ConfigError(msg.format(self._az, ', '.join(
                 self._get_available_azs())))
 
     def _get_workflow_allowed(self):
         """Determine if current workflow is allowed in current AZ.
 
         Raises:
-            ConfigException: If workflow is not allowed in az.
+            ConfigError: If workflow is not allowed in az.
         Returns:
             bool: True if workflow is allowed in AZ.
         """
@@ -186,5 +186,5 @@ class Config(object):
             return True
 
         msg = "Workflow '{}' may only be run in AZs: {}"
-        raise ConfigException(msg.format(self._workflow, ', '.join(
+        raise ConfigError(msg.format(self._workflow, ', '.join(
             self._get_allowed_azs())))

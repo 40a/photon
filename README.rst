@@ -1,6 +1,7 @@
-********
+******
 Photon
-********
+******
+
 Photon is a data driven tool designed to run workflows against an AZ using
 Ansible.
 
@@ -11,6 +12,7 @@ point in the event of a playbook failure.
 
 Quick Start
 ===========
+
 Create a file called ``photon.yml`` and define at least one AZ and workflow.
 
 .. code-block:: yaml
@@ -36,6 +38,7 @@ To execute a workflow against an AZ, simply run:
 
 Environment Variables
 =====================
+
 Photon will use a copy of the existing environment to pass to its call to
 ``ansible-playbook``. This allows you to preserve your venv when using photon.
 You can add to or overwrite environment variables in the ``azs.<name>.env``
@@ -52,6 +55,7 @@ section of your config.
 
 Workflow Flags
 ==============
+
 Flags are simply CLI options that are passed to the underlying call to
 ``ansible-playbook``. When defined as ``workflows.<name>.flags`` they will be
 applied to all playbooks in a workflow. When defined as
@@ -75,6 +79,7 @@ that specific playbook.
 
 Limiting Execution
 ==================
+
 By default, all workflows can be executed against all AZs. It is possible
 to limit a workflow to only run against limited AZs. For example, a
 workflow that tests password change playbooks makes sense against proxmox,
@@ -99,6 +104,7 @@ A workflow can be limited by adding the key ``workflows.<name>.allowed_azs``.
 
 Resuming Execution
 ==================
+
 In the event of a playbook failure, photon will print a command as part of the
 error message that can be used to continue the execution of a workflow from the
 point where it failed. This is simply a list index that corresponds to the
