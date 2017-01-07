@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# Copyright (c) 2016 Cisco Systems
+# Copyright (c) 2017 Cisco Systems
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,76 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import copy
 
-import pytest
-
-from photon import config
-from photon import provisioner
-
-
-@pytest.fixture()
-def base_command():
-    return ['ansible-playbook', '--inventory=inventory/az', '--user=$USER',
-            '--become', '--connection=ssh']
-
-
-@pytest.fixture()
-def command_with_extra_flags(base_command):
-    cmd = copy.copy(base_command)
-    cmd.extend(['--extra-vars="skip_handlers=True"',
-                '--extra-vars="openstack_serial_controller=1"',
-                '--skip-tags="functional_tests,integration_tests"'])
-
-    return cmd
-
-
-def test_get_commands(photon_provisioner):
-    assert [] == photon_provisioner._get_commands()
-
-
-def test_extra_flags_missing(photon_config_file, base_command):
-    c = config.Config('az', photon_config_file)
-    p = provisioner.Provisioner(c, 'restart')
-    result = p._get_commands()
-
-    expected = copy.copy(base_command)
-    expected.extend(['playbooks/openstack/metapod/service_restart.yml'])
-
-    assert expected == result[0]
-
-
-def test_upgrade_workflow(photon_config, command_with_extra_flags):
-    p = provisioner.Provisioner(photon_config, 'upgrade')
-    result = p._get_commands()
-
-    expected = copy.copy(command_with_extra_flags)
-    expected.extend(['playbooks/openstack/metapod/package_upgrade.yml'])
-
-    assert expected == result[0]
-
-    expected = copy.copy(command_with_extra_flags)
-    expected.extend(['playbooks/openstack/metapod.yml'])
-
-    assert expected == result[1]
-
-
-def test_upgrade_workflow_with_limit(photon_config, command_with_extra_flags):
-    p = provisioner.Provisioner(photon_config, 'upgrade', 'mcp[1]')
-    result = p._get_commands()
-
-    expected = copy.copy(command_with_extra_flags)
-    expected.extend(['playbooks/openstack/metapod/package_upgrade.yml'])
-    expected.extend(["--limit='mcp[1]'"])
-
-    assert expected == result[0]
-
-
-def test_restart_workflow(photon_config, base_command):
-    p = provisioner.Provisioner(photon_config, 'restart')
-    result = p._get_commands()
-
-    expected = copy.copy(base_command)
-    expected.extend(['playbooks/openstack/metapod/service_restart.yml'])
-
-    assert expected == result[0]
+def test_construct_resume_cli(photon_provisioner):
+    cli = 'photon upgrade test'
+    assert cli + ' --resume 3' == photon_provisioner._construct_resume_cli(
+        3, cli.split())

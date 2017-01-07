@@ -1,29 +1,38 @@
 ---
-user: $USER
-inventory: inventory/{az}
-flags:
-  - --connection=ssh
-  - --become
-env: {}
 azs:
   proxmox:
-    env:
-      ANSIBLE_HOST_KEY_CHECKING: False
-      ANSIBLE_INSTRUMENT_MODULES: True
-      ANSIBLE_SSH_ARGS: '"-F $HOME/.axion/ssh_config"'
     inventory: inventory/fusion/metapod/proxmox
+    env:
+      ANSIBLE_VAULT_PASSWORD_FILE: ~/.config/ansible-systems/vault-proxmox.pass
+  proxmox2:
+    inventory: inventory/fusion/metapod/proxmox
+    env:
+      ANSIBLE_VAULT_PASSWORD_FILE: ~/.config/ansible-systems/vault-proxmox.pass
+
 workflows:
-  upgrade:
-    extra_flags:
-      - --extra-vars="skip_handlers=True"
-      - --extra-vars="openstack_serial_controller=1"
-      - --skip-tags="functional_tests,integration_tests"
+  update_passwords:
+    # passed to all playbooks in this workflow
+    flags:
+      - --become
     playbooks:
-      - playbooks/openstack/metapod/package_upgrade.yml
-      - playbooks/openstack/metapod.yml
-  restart:
+      - path: playbooks/openstack/metapod/change_passwords/percona_cinder.yml
+        # passed only to this playbook
+        flags:
+          - --tags="update_percona_passwords"
+          - --extra-vars="cinder_in_use=True"
+
+  test_password_playbooks:
+    # all by default, this allows us to lock a workflow to a particular az
+    # in this case, we can't run our test password playbooks against anything but proxmox
+    allowed_azs:
+      - proxmox
     playbooks:
-      - playbooks/openstack/metapod/service_restart.yml
-  deploy:
-    playbooks:
-      - playbooks/openstack/metapod.yml
+      - path: playbooks/openstack/metapod/tests/percona_cinder.yml
+        flags:
+          - --tags=update_percona_passwords
+      - path: playbooks/openstack/metapod/tests/percona_keystone.yml
+        flags:
+          - --tags=update_percona_passwords
+      - path: playbooks/openstack/metapod/tests/percona_xtrabackup.yml
+        flags:
+          - --tags=update_percona_cluster_pw
