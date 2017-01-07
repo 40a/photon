@@ -19,43 +19,33 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-"""
-Photon CLI wrapper.
-"""
-from __future__ import print_function
 
-import argparse
+import click
 
 import photon
-from photon import config
-from photon import provisioner
-
-ap = argparse.ArgumentParser(prog='photon', description=__doc__.strip())
-ap.add_argument('--version', action='version', version=photon.__version__)
-rp = ap.add_argument_group('required arguments')
-rp.add_argument('--az', required=True, help='name of the availability zone')
-rp.add_argument('--workflow',
-                required=True,
-                help='name of the workflow to perform')
-ap.add_argument('--config',
-                default='photon.yml',
-                help='path to the photon config')
-ap.add_argument('--resume',
-                default=1,
-                help='playbook position to start at within workflow')
-args = ap.parse_args()
+from photon.config import Config, ConfigError
+from photon.provisioner import Provisioner
 
 
-def main():
+@click.command()
+@click.version_option(version=photon.__version__)
+@click.argument('workflow')
+@click.argument('az')
+@click.option('--config',
+              default='photon.yml',
+              type=click.Path(exists=True),
+              help='path to the photon config')
+@click.option('--resume',
+              default=1,
+              help='playbook position to start at within workflow')
+def main(az, workflow, resume, config):
     try:
-        c = config.Config(az=args.az,
-                          workflow=args.workflow,
-                          config_file=args.config)
-    except photon.config.ConfigError as e:
-        ap.error(e)
+        c = Config(az=az, workflow=workflow, config_file=config)
+    except ConfigError as e:
+        raise click.UsageError(str(e))
 
-    p = provisioner.Provisioner(c)
-    p.run(args.resume)
+    p = Provisioner(c)
+    p.run(resume)
 
 
 if __name__ == '__main__':

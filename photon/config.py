@@ -19,6 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+
 import os
 
 import yaml
@@ -106,7 +107,7 @@ class Config(object):
         try:
             return self._config['workflows'][self._workflow]
         except KeyError:
-            msg = "Unknown workflow '{}'. Valid workflows are: {}"
+            msg = "Invalid workflow '{}'. Valid workflows are: {}"
             raise ConfigError(msg.format(self._workflow, ', '.join(
                 self._get_available_workflows())))
 
@@ -166,7 +167,7 @@ class Config(object):
         try:
             return self._config['azs'][self._az]
         except KeyError:
-            msg = "Unknown az '{}'. Valid AZs are: {}"
+            msg = "Invalid AZ '{}'. Valid AZs are: {}"
             raise ConfigError(msg.format(self._az, ', '.join(
                 self._get_available_azs())))
 

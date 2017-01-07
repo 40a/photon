@@ -34,7 +34,7 @@ To execute a workflow against an AZ, simply run:
 
 .. code-block:: bash
 
-    $ photon --workflow test_password_playbooks --az proxmox
+    $ photon test_password_playbooks proxmox
 
 Environment Variables
 =====================
@@ -124,6 +124,6 @@ Using the above config, the command:
 
 .. code-block:: bash
 
-    $ photon --workflow test_password_playbooks --az proxmox --resume 3
+    $ photon test_password_playbooks proxmox --resume 3
 
 Would resume execution starting with the ``percona_glance.yml`` playbook.

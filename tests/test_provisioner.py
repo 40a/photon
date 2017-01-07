@@ -22,6 +22,6 @@
 
 
 def test_construct_resume_cli(photon_provisioner):
-    cli = 'photon --az test --workflow upgrade'
+    cli = 'photon upgrade test'
     assert cli + ' --resume 3' == photon_provisioner._construct_resume_cli(
         3, cli.split())

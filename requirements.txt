@@ -1,3 +1,4 @@
+click
 colorama
 pbr
 pyyaml
