@@ -1,5 +1,5 @@
 *.egg-info/
 .cache/
+.eggs/
 .tox/
-.testrepository/
 doc/build/

@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# Copyright (c) 2017 Cisco Systems
+# Copyright (c) 2017 Cisco Systems, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -108,8 +108,9 @@ class Config(object):
             return self._config['workflows'][self._workflow]
         except KeyError:
             msg = "Invalid workflow '{}'. Valid workflows are: {}"
-            raise ConfigError(msg.format(self._workflow, ', '.join(
-                self._get_available_workflows())))
+            raise ConfigError(
+                msg.format(self._workflow, ', '.join(
+                    self._get_available_workflows())))
 
     def _get_allowed_azs(self):
         """Get optional allowed_azs from the workflow section of the config.
@@ -168,8 +169,8 @@ class Config(object):
             return self._config['azs'][self._az]
         except KeyError:
             msg = "Invalid AZ '{}'. Valid AZs are: {}"
-            raise ConfigError(msg.format(self._az, ', '.join(
-                self._get_available_azs())))
+            raise ConfigError(
+                msg.format(self._az, ', '.join(self._get_available_azs())))
 
     def _get_workflow_allowed(self):
         """Determine if current workflow is allowed in current AZ.
@@ -187,5 +188,5 @@ class Config(object):
             return True
 
         msg = "Workflow '{}' may only be run in AZs: {}"
-        raise ConfigError(msg.format(self._workflow, ', '.join(
-            self._get_allowed_azs())))
+        raise ConfigError(
+            msg.format(self._workflow, ', '.join(self._get_allowed_azs())))

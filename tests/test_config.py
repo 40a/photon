@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# Copyright (c) 2017 Cisco Systems
+# Copyright (c) 2017 Cisco Systems, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -90,6 +90,5 @@ def test_get_config_invalid(photon_config_file):
 
 def test_workflow_allowed_invalid(photon_config_file):
     with pytest.raises(photon.config.ConfigError):
-        config.Config('test_invalid',
-                      'upgrade',
-                      config_file=photon_config_file)
+        config.Config(
+            'test_invalid', 'upgrade', config_file=photon_config_file)

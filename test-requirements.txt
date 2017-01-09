@@ -1,5 +1,2 @@
 flake8
 pytest
-sphinx
-sphinx_rtd_theme
-yapf==0.10.0

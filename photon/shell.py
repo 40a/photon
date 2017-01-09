@@ -1,6 +1,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
-# Copyright (c) 2017 Cisco Systems
+# Copyright (c) 2017 Cisco Systems, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,13 +31,15 @@ from photon.provisioner import Provisioner
 @click.version_option(version=photon.__version__)
 @click.argument('workflow')
 @click.argument('az')
-@click.option('--config',
-              default='photon.yml',
-              type=click.Path(exists=True),
-              help='path to the photon config')
-@click.option('--resume',
-              default=1,
-              help='playbook position to start at within workflow')
+@click.option(
+    '--config',
+    default='photon.yml',
+    type=click.Path(exists=True),
+    help='path to the photon config')
+@click.option(
+    '--resume',
+    default=1,
+    help='playbook position to start at within workflow')
 def main(az, workflow, resume, config):
     try:
         c = Config(az=az, workflow=workflow, config_file=config)
