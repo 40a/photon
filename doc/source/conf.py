@@ -128,7 +128,7 @@ html_theme = 'alabaster'
 # documentation.
 # html_theme_options = {}
 html_theme_options = {
-#    'logo': 'logo.png',
+    'logo': 'logo.png',
     'github_user': 'metacloud',
     'github_repo': 'photon',
     'github_button': True,

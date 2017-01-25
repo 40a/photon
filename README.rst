@@ -127,3 +127,12 @@ Using the above config, the command:
     $ photon test_password_playbooks proxmox --resume 3
 
 Would resume execution starting with the ``percona_glance.yml`` playbook.
+
+License
+=======
+
+MIT
+
+The logo is licensed under the `Creative Commons NoDerivatives 4.0 License`_.  If you have some other use in mind, contact us.
+
+.. _`Creative Commons NoDerivatives 4.0 License`: https://creativecommons.org/licenses/by-nd/4.0/
