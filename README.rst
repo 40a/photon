@@ -25,6 +25,12 @@ point in the event of a playbook failure.
 Quick Start
 ===========
 
+Install photon using pip:
+
+.. code-block:: bash
+
+    $ pip install python-photon
+
 Create a file called ``photon.yml`` and define at least one AZ and workflow.
 
 .. code-block:: yaml
