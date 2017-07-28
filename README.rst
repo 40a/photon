@@ -2,12 +2,12 @@
 Photon
 ******
 
-.. image:: https://badge.fury.io/py/photon-python.svg
-   :target: https://badge.fury.io/py/photon-python
+.. image:: https://badge.fury.io/py/python-photon.svg
+   :target: https://badge.fury.io/py/python-photon
    :alt: PyPI Package
 
-.. image:: https://readthedocs.org/projects/photon-python/badge/?version=latest
-   :target: https://photon-python.readthedocs.io/en/latest/
+.. image:: https://readthedocs.org/projects/python-photon/badge/?version=latest
+   :target: https://python-photon.readthedocs.io/en/latest/
    :alt: Documentation Status
 
 .. image:: https://img.shields.io/badge/license-MIT-brightgreen.svg
@@ -51,7 +51,7 @@ To execute a workflow against an AZ, simply run:
 Documentation
 =============
 
-https://photon-python.readthedocs.io/
+https://python-photon.readthedocs.io/
 
 License
 =======
