@@ -20,10 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from pbr import version
+import pbr.version
 
-try:
-    version_info = version.VersionInfo('photon')
-    __version__ = version_info.version_string()
-except AttributeError:
-    __version__ = None
+version_info = pbr.version.VersionInfo('photon')  # noqa
+__version__ = version_info.release_string()
