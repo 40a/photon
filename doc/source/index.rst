@@ -95,7 +95,9 @@ Would resume execution starting with the ``some_other_password.yml`` playbook.
 .. toctree::
    :maxdepth: 3
 
+   testing
    contributing
+   development
    changelog
    authors
 
