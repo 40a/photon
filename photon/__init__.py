@@ -22,5 +22,5 @@
 
 import pbr.version
 
-version_info = pbr.version.VersionInfo('photon')  # noqa
+version_info = pbr.version.VersionInfo('python-photon')  # noqa
 __version__ = version_info.release_string()
